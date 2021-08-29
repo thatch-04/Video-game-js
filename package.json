@@ -1,0 +1,23 @@
+{
+  "name": "video-game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thatch-04/Video-game-js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thatch-04/Video-game-js/issues"
+  },
+  "homepage": "https://github.com/thatch-04/Video-game-js#readme",
+  "dependencies": {
+    "parcel-bundler": "^1.12.5"
+  }
+}
