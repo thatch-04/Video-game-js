@@ -8,8 +8,8 @@ export default class Starship {
       this.speed = 0;
   
       this.position = {
-        x: game.gameWidth / 2 - this.width / 2,
-        y: game.gameHeight - this.height - 10
+        x: game.gameWidth / 2 - this.size / 2,
+        y: game.gameHeight - this.size - 10
       };
     }
   
@@ -39,7 +39,7 @@ export default class Starship {
   
       if (this.position.x < 0) this.position.x = 0;
   
-      if (this.position.x + this.width > this.gameWidth)
-        this.position.x = this.gameWidth - this.width;
+      if (this.position.x + this.size > this.gameWidth)
+        this.position.x = this.gameWidth - this.size;
     }
   }

@@ -140,8 +140,8 @@ var Starship = /*#__PURE__*/function () {
     this.maxSpeed = 7;
     this.speed = 0;
     this.position = {
-      x: game.gameWidth / 2 - this.width / 2,
-      y: game.gameHeight - this.height - 10
+      x: game.gameWidth / 2 - this.size / 2,
+      y: game.gameHeight - this.size - 10
     };
   }
 
@@ -170,7 +170,7 @@ var Starship = /*#__PURE__*/function () {
     value: function update(deltaTime) {
       this.position.x += this.speed;
       if (this.position.x < 0) this.position.x = 0;
-      if (this.position.x + this.width > this.gameWidth) this.position.x = this.gameWidth - this.width;
+      if (this.position.x + this.size > this.gameWidth) this.position.x = this.gameWidth - this.size;
     }
   }]);
 
@@ -228,6 +228,28 @@ var InputHandler = function InputHandler(starship, game) {
 };
 
 exports.default = InputHandler;
+},{}],"src/collisionDetection.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.detectCollision = detectCollision;
+
+function detectCollision(lazer, gameObject) {
+  var bottomOfLazer = lazer.position.y + lazer.size;
+  var topOfLazer = lazer.position.y;
+  var topOfObject = gameObject.position.y;
+  var leftSideOfObject = gameObject.position.x;
+  var rightSideOfObject = gameObject.position.x + gameObject.width;
+  var bottomOfObject = gameObject.position.y + gameObject.height;
+
+  if (bottomOfLazer >= topOfObject && topOfLazer <= bottomOfObject && lazer.position.x >= leftSideOfObject && lazer.position.x + lazer.size <= rightSideOfObject) {
+    return true;
+  } else {
+    return false;
+  }
+}
 },{}],"src/lazer.js":[function(require,module,exports) {
 "use strict";
 
@@ -236,16 +258,123 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _collisionDetection = require("./collisionDetection");
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Lazer = function Lazer() {
-  _classCallCheck(this, Lazer);
-};
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Lazer = /*#__PURE__*/function () {
+  function Lazer(game) {
+    _classCallCheck(this, Lazer);
+
+    this.image = document.getElementById("img_lazer");
+    this.gameWidth = game.gameWidth;
+    this.gameHeight = game.gameHeight;
+    this.game = game;
+    this.size = 16;
+    this.reset();
+  }
+
+  _createClass(Lazer, [{
+    key: "reset",
+    value: function reset() {
+      this.position = {
+        x: 10,
+        y: 400
+      };
+      this.speed = {
+        x: 4,
+        y: -2
+      };
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx) {
+      ctx.drawImage(this.image, this.position.x, this.position.y, this.size, this.size);
+    }
+  }, {
+    key: "update",
+    value: function update(deltaTime) {
+      this.position.x += this.speed.x;
+      this.position.y += this.speed.y; // wall on left or right
+
+      if (this.position.x + this.size > this.gameWidth || this.position.x < 0) {
+        this.speed.x = -this.speed.x;
+      } // wall on top
+
+
+      if (this.position.y < 0) {
+        this.speed.y = -this.speed.y;
+      } // bottom of game
+
+
+      if (this.position.y + this.size > this.gameHeight) {
+        this.game.lives--;
+        this.reset();
+      }
+
+      if ((0, _collisionDetection.detectCollision)(this, this.game.starship)) {
+        this.speed.y = -this.speed.y;
+        this.position.y = this.game.paddle.position.y - this.size;
+      }
+    }
+  }]);
+
+  return Lazer;
+}();
 
 exports.default = Lazer;
-},{}],"src/alien.js":[function(require,module,exports) {
+},{"./collisionDetection":"src/collisionDetection.js"}],"src/alien.js":[function(require,module,exports) {
+"use strict";
 
-},{}],"src/levels.js":[function(require,module,exports) {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _collisionDetection = require("./collisionDetection");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Alien = /*#__PURE__*/function () {
+  function Alien(game, position) {
+    _classCallCheck(this, Alien);
+
+    this.image = document.getElementById("img_alien");
+    this.game = game;
+    this.position = position;
+    this.width = 24;
+    this.height = 24;
+    this.markedForDeletion = false;
+  }
+
+  _createClass(Alien, [{
+    key: "update",
+    value: function update() {
+      if ((0, _collisionDetection.detectCollision)(this.game.lazer, this)) {
+        this.game.lazer.speed.y = -this.game.lazer.speed.y;
+        this.markedForDeletion = true;
+      }
+    }
+  }, {
+    key: "draw",
+    value: function draw(ctx) {
+      ctx.drawImage(this.image, this.position.x, this.position.y, this.width, this.height);
+    }
+  }]);
+
+  return Alien;
+}();
+
+exports.default = Alien;
+},{"./collisionDetection":"src/collisionDetection.js"}],"src/levels.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -477,7 +606,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60774" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49817" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
