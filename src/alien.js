@@ -7,8 +7,8 @@ export default class Alien {
     this.game = game;
 
     this.position = position;
-    this.width = 24;
-    this.height = 24;
+    this.width = 50;
+    this.height = 50;
 
     this.markedForDeletion = false;
   }

@@ -8,7 +8,7 @@ export function buildLevel(game, level) {
         if (alien === 1) {
           let position = {
             x: 80 * alienIndex,
-            y: 75 + 24 * rowIndex
+            y: 75 + 50 * rowIndex
           };
           aliens.push(new Alien(game, position));
         }
@@ -19,10 +19,6 @@ export function buildLevel(game, level) {
   }
   
   export const level1 = [
-    // [0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
-    // [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    // [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    // [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     [0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
   ];
   

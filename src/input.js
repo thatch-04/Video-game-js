@@ -1,5 +1,5 @@
 export default class InputHandler {
-    constructor(starship, game) {
+    constructor(starship, game, lazer) {
       document.addEventListener("keydown", event => {
         switch (event.keyCode) {
           case 37:
@@ -11,7 +11,7 @@ export default class InputHandler {
             break;
         
           case 38:
-            starship.fire();
+            lazer.fire();
             break; 
   
           case 27:

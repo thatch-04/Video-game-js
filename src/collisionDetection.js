@@ -1,5 +1,5 @@
 export function detectCollision(lazer, gameObject) {
-    let bottomOfLazer = lazer.position.y + lazer.size;
+    let bottomOfLazer = lazer.position.y + lazer.width;
     let topOfLazer = lazer.position.y;
   
     let topOfObject = gameObject.position.y;
@@ -11,7 +11,7 @@ export function detectCollision(lazer, gameObject) {
       bottomOfLazer >= topOfObject &&
       topOfLazer <= bottomOfObject &&
       lazer.position.x >= leftSideOfObject &&
-      lazer.position.x + lazer.size <= rightSideOfObject
+      lazer.position.x + lazer.width <= rightSideOfObject
     ) {
       return true;
     } else {

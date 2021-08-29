@@ -136,12 +136,14 @@ var Starship = /*#__PURE__*/function () {
     _classCallCheck(this, Starship);
 
     this.image = document.getElementById("img_starship");
-    this.size = 100;
+    this.gameWidth = game.gameWidth;
+    this.height = 75;
+    this.width = 75;
     this.maxSpeed = 7;
     this.speed = 0;
     this.position = {
-      x: game.gameWidth / 2 - this.size / 2,
-      y: game.gameHeight - this.size - 10
+      x: game.gameWidth / 2 - this.width / 2,
+      y: game.gameHeight - this.height - 10
     };
   }
 
@@ -163,14 +165,14 @@ var Starship = /*#__PURE__*/function () {
   }, {
     key: "draw",
     value: function draw(ctx) {
-      ctx.drawImage(this.image, this.position.x, this.position.y, this.size, this.size);
+      ctx.drawImage(this.image, this.position.x, this.position.y, this.height, this.width);
     }
   }, {
     key: "update",
     value: function update(deltaTime) {
       this.position.x += this.speed;
       if (this.position.x < 0) this.position.x = 0;
-      if (this.position.x + this.size > this.gameWidth) this.position.x = this.gameWidth - this.size;
+      if (this.position.x + this.width > this.gameWidth) this.position.x = this.gameWidth - this.width;
     }
   }]);
 
@@ -188,7 +190,7 @@ exports.default = void 0;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var InputHandler = function InputHandler(starship, game) {
+var InputHandler = function InputHandler(starship, game, lazer) {
   _classCallCheck(this, InputHandler);
 
   document.addEventListener("keydown", function (event) {
@@ -202,7 +204,7 @@ var InputHandler = function InputHandler(starship, game) {
         break;
 
       case 38:
-        starship.fire();
+        lazer.fire();
         break;
 
       case 27:
@@ -237,14 +239,14 @@ Object.defineProperty(exports, "__esModule", {
 exports.detectCollision = detectCollision;
 
 function detectCollision(lazer, gameObject) {
-  var bottomOfLazer = lazer.position.y + lazer.size;
+  var bottomOfLazer = lazer.position.y + lazer.width;
   var topOfLazer = lazer.position.y;
   var topOfObject = gameObject.position.y;
   var leftSideOfObject = gameObject.position.x;
   var rightSideOfObject = gameObject.position.x + gameObject.width;
   var bottomOfObject = gameObject.position.y + gameObject.height;
 
-  if (bottomOfLazer >= topOfObject && topOfLazer <= bottomOfObject && lazer.position.x >= leftSideOfObject && lazer.position.x + lazer.size <= rightSideOfObject) {
+  if (bottomOfLazer >= topOfObject && topOfLazer <= bottomOfObject && lazer.position.x >= leftSideOfObject && lazer.position.x + lazer.width <= rightSideOfObject) {
     return true;
   } else {
     return false;
@@ -271,10 +273,11 @@ var Lazer = /*#__PURE__*/function () {
     _classCallCheck(this, Lazer);
 
     this.image = document.getElementById("img_lazer");
+    this.width = 5;
+    this.height = 20;
     this.gameWidth = game.gameWidth;
     this.gameHeight = game.gameHeight;
     this.game = game;
-    this.size = 16;
     this.reset();
   }
 
@@ -282,18 +285,19 @@ var Lazer = /*#__PURE__*/function () {
     key: "reset",
     value: function reset() {
       this.position = {
-        x: 10,
-        y: 400
+        x: this.gameWidth / 2 - this.width / 2,
+        y: this.gameHeight - this.height - 10
       };
       this.speed = {
-        x: 4,
-        y: -2
+        x: 0,
+        y: 10
       };
     }
   }, {
     key: "draw",
     value: function draw(ctx) {
-      ctx.drawImage(this.image, this.position.x, this.position.y, this.size, this.size);
+      ctx.fillStyle = "000";
+      ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
   }, {
     key: "update",
@@ -301,24 +305,19 @@ var Lazer = /*#__PURE__*/function () {
       this.position.x += this.speed.x;
       this.position.y += this.speed.y; // wall on left or right
 
-      if (this.position.x + this.size > this.gameWidth || this.position.x < 0) {
+      if (this.position.x + this.width > this.gameWidth || this.position.x < 0) {
         this.speed.x = -this.speed.x;
-      } // wall on top
-
-
-      if (this.position.y < 0) {
-        this.speed.y = -this.speed.y;
       } // bottom of game
 
 
-      if (this.position.y + this.size > this.gameHeight) {
+      if (this.position.y + this.width > this.gameHeight) {
         this.game.lives--;
         this.reset();
       }
 
       if ((0, _collisionDetection.detectCollision)(this, this.game.starship)) {
         this.speed.y = -this.speed.y;
-        this.position.y = this.game.paddle.position.y - this.size;
+        this.position.y = this.game.starship.position.y - this.width;
       }
     }
   }]);
@@ -350,8 +349,8 @@ var Alien = /*#__PURE__*/function () {
     this.image = document.getElementById("img_alien");
     this.game = game;
     this.position = position;
-    this.width = 24;
-    this.height = 24;
+    this.width = 50;
+    this.height = 50;
     this.markedForDeletion = false;
   }
 
@@ -394,7 +393,7 @@ function buildLevel(game, level) {
       if (alien === 1) {
         var position = {
           x: 80 * alienIndex,
-          y: 75 + 24 * rowIndex
+          y: 75 + 50 * rowIndex
         };
         aliens.push(new _alien.default(game, position));
       }
@@ -403,11 +402,7 @@ function buildLevel(game, level) {
   return aliens;
 }
 
-var level1 = [// [0, 1, 1, 0, 0, 0, 0, 1, 1, 0],
-// [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-// [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-// [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-[0, 0, 0, 0, 0, 0, 0, 1, 0, 0]];
+var level1 = [[0, 0, 0, 0, 0, 0, 0, 1, 0, 0]];
 exports.level1 = level1;
 var level2 = [[0, 1, 1, 0, 0, 0, 0, 1, 1, 0], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
 exports.level2 = level2;
@@ -606,7 +601,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49817" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51036" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
